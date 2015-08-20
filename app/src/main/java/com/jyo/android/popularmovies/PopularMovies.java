@@ -1,12 +1,15 @@
 package com.jyo.android.popularmovies;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class PopularMovies extends AppCompatActivity {
+
+    //Intent's data name
+    public static final String MOVIE = "movie";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

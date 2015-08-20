@@ -11,6 +11,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Created by JohnTangarife on 5/08/15.
  */
@@ -20,10 +23,16 @@ public class MovieListAdapter extends ArrayAdapter<Movie> {
     private List<Movie> moviesResult;
     private Context context;
 
+    @Bind(R.id.img_movie_poster) ImageView poster;
+
     public MovieListAdapter(Context context, List<Movie> movies){
         super(context, R.layout.list_item_movies, movies);
         this.context = context;
         this.moviesResult = movies;
+    }
+
+    public List<Movie> getMoviesResult(){
+        return this.moviesResult;
     }
 
     @Override
@@ -47,12 +56,12 @@ public class MovieListAdapter extends ArrayAdapter<Movie> {
 
         LayoutInflater inflater = LayoutInflater.from(context);
         View item = inflater.inflate(R.layout.list_item_movies, null);
+
+        ButterKnife.bind(this, item);
         Movie movie = getItem(position);
 
-        ImageView imageView = (ImageView) item.findViewById(R.id.img_movie_poster);
-
         if(movie.getPosterURL() != null && movie.getPosterURL() != ""){
-            Picasso.with(context).load(movie.getPosterURL()).into(imageView);
+            Picasso.with(context).load(movie.getPosterURL()).into(poster);
         }
 
         return item;

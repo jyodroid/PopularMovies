@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 public class PopularMoviesFragment extends Fragment {
 
     private MovieListAdapter movieListAdapter;
+    private static final String MOVIE_KEY = "movie_key";
 
     public PopularMoviesFragment() {
     }
@@ -49,7 +52,9 @@ public class PopularMoviesFragment extends Fragment {
 
                 Movie selectedMovie = movieListAdapter.getItem(position);
                 Intent movieDetailIntent = new Intent(context, MovieDetailActivity.class);
-                movieDetailIntent.putExtra("movie", selectedMovie);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(PopularMovies.MOVIE, selectedMovie);
+                movieDetailIntent.putExtras(bundle);
                 startActivity(movieDetailIntent);
             }
         });
@@ -68,5 +73,21 @@ public class PopularMoviesFragment extends Fragment {
                 getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_popularity)
         ));
+    }
+
+    @Override
+         public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(
+                MOVIE_KEY,
+                (ArrayList<? extends Parcelable>) movieListAdapter.getMoviesResult());
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState != null && savedInstanceState.get(MOVIE_KEY) != null){
+            movieListAdapter.addAll((List<Movie>)savedInstanceState.get(MOVIE_KEY));
+        }
     }
 }
