@@ -1,9 +1,7 @@
 package com.jyo.android.popularmovies;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.AppCompatActivity;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
@@ -14,14 +12,14 @@ public class MovieDetailActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_movie_detail, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_movie_detail, menu);
+//        return true;
+//    }
 
-    @Override
+/*    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -32,7 +30,11 @@ public class MovieDetailActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        else if(id == R.id.home){
+            onBackPressed();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 }

@@ -22,13 +22,22 @@ import java.util.List;
 
 /**
  * Created by JohnTangarife on 5/08/15.
+ * UDACITY project
  */
 public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
+
+    //Error codes when retrieve data from API
+    public static final int NO_API_KEY_SET = 0;
+    public static final int NO_DATA_RETRIEVED = 1;
+    public static final int EMPTY_STRING = 2;
+    public static final int IO_EXCEPTION = 3;
+
 
     private static final String API_BASE_PATH = "http://api.themoviedb.org/3/discover/movie";
     private static final String LOG_TAG = PopMoviesTask.class.getSimpleName();
     private MovieListAdapter moviesAdapter;
     private Context context;
+    private int mDataErrorCode = -1;
 
     public PopMoviesTask(MovieListAdapter moviesAdapter, Context context) {
 
@@ -50,7 +59,6 @@ public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
 
             //Param names
             final String SORT_BY_PARAMETER = "sort_by";
-            final String INCLUDE_ADULT = "include_adult";
             final String API_KEY = "api_key";
 
             //Param values
@@ -60,10 +68,14 @@ public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
             //Insert here your API KEY from themoviedb.org
             String apiKey = "";
 
+            if (apiKey.isEmpty() || apiKey.equals("")){
+                mDataErrorCode = NO_API_KEY_SET;
+                return null;
+            }
+
             // Construct the URL
             Uri builtUri = Uri.parse(API_BASE_PATH).buildUpon()
                     .appendQueryParameter(SORT_BY_PARAMETER, sortTypeParam)
-                    .appendQueryParameter(INCLUDE_ADULT, includeAdultParam)
                     .appendQueryParameter(API_KEY, apiKey)
                     .build();
 
@@ -76,9 +88,10 @@ public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
 
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
                 // Nothing to do.
+                mDataErrorCode = NO_DATA_RETRIEVED;
                 return null;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -93,14 +106,14 @@ public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
+                mDataErrorCode = EMPTY_STRING;
                 return null;
             }
             moviesJsonStr = buffer.toString();
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the weather data, there's no point in attemping
-            // to parse it.
+            mDataErrorCode = IO_EXCEPTION;
             return null;
         } finally {
             if (urlConnection != null) {
@@ -131,20 +144,47 @@ public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
 
     @Override
     protected void onPostExecute(List<Movie> result) {
-        //Obtaining artists
+//        clean adapter
         moviesAdapter.clear();
 
-        if(0 == result.size()){
-            if(context != null){
-                CharSequence text = "No Movies found";
-                int duration = Toast.LENGTH_LONG;
+        //Obtaining movies
+        if (result == null){
 
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
+            //For debug propose
+            switch (mDataErrorCode){
+                case NO_API_KEY_SET:
+                    Log.e(LOG_TAG, "No Api key set for themoviedb.org API");
+                    break;
+                case NO_DATA_RETRIEVED:
+                    Log.e(LOG_TAG, "No data retrieved from query on themoviedb.org API");
+                    break;
+                case EMPTY_STRING:
+                    Log.e(LOG_TAG, "Empty string retrieved from query on themoviedb.org API");
+                    break;
+                case IO_EXCEPTION:
+                    Log.e(LOG_TAG, "IO Exception reading JSON String from themoviedb.org API");
+                    break;
             }
-        }else{
-            moviesAdapter.addAll(result);
+
+            CharSequence text =
+                    "We got a problem retrieving movies info";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }else {
+            if(0 == result.size()){
+                if(context != null){
+                    CharSequence text = "No Movies found";
+                    int duration = Toast.LENGTH_LONG;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+            }else{
+                moviesAdapter.addAll(result);
+            }
         }
+
     }
 
     private List<Movie> getMoviesFromJson(String moviesJsonStr) throws JSONException, MalformedURLException {

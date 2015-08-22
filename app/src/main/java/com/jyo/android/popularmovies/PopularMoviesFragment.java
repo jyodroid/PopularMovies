@@ -3,6 +3,8 @@ package com.jyo.android.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +26,26 @@ public class PopularMoviesFragment extends Fragment {
 
     private MovieListAdapter movieListAdapter;
     private static final String MOVIE_KEY = "movie_key";
+    private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
+
 
     public PopularMoviesFragment() {
     }
 
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        if (movieListAdapter.getMoviesResult().size() == 0) {
+//            updateMoviesList(getActivity().getBaseContext());
+//        }
+//    }
+//
     @Override
-    public void onStart() {
-        super.onStart();
-        updateMoviesList(getActivity().getBaseContext());
+    public void onResume() {
+        if (movieListAdapter.getMoviesResult().size() == 0) {
+            updateMoviesList(getActivity().getBaseContext());
+        }
+        super.onResume();
     }
 
     @Override
@@ -38,13 +53,27 @@ public class PopularMoviesFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         final Context context = getActivity().getBaseContext();
+        sharedPreferenceChangeListener =
+                new SharedPreferences.OnSharedPreferenceChangeListener() {
+
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                        updateMoviesList(context);
+                    }
+                };
+
+        PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
 
         View rootView = inflater.inflate(R.layout.fragment_popular_movies, container, false);
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_posters);
 
         movieListAdapter = new MovieListAdapter(context, new ArrayList<Movie>());
-
         gridView.setAdapter(movieListAdapter);
+
+        if (savedInstanceState != null && savedInstanceState.get(MOVIE_KEY) == null) {
+            updateMoviesList(context);
+        }
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -62,21 +91,39 @@ public class PopularMoviesFragment extends Fragment {
         return rootView;
     }
 
-    private void updateMoviesList(Context context){
+    private void updateMoviesList(Context context) {
 
-        PopMoviesTask task = new PopMoviesTask(movieListAdapter, context);
+        //Check if we have internet access
+        if (isInternetAvailable()) {
+            PopMoviesTask task = new PopMoviesTask(movieListAdapter, context);
 
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(getActivity());
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        task.execute(preferences.getString(
-                getString(R.string.pref_sort_key),
-                getString(R.string.pref_sort_popularity)
-        ));
+            task.execute(preferences.getString(
+                    getString(R.string.pref_sort_key),
+                    getString(R.string.pref_sort_popularity)
+            ));
+
+        } else {
+            CharSequence text = "No internet connection available !!";
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
+
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     @Override
-         public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(
                 MOVIE_KEY,
@@ -84,10 +131,17 @@ public class PopularMoviesFragment extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .unregisterOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(savedInstanceState != null && savedInstanceState.get(MOVIE_KEY) != null){
-            movieListAdapter.addAll((List<Movie>)savedInstanceState.get(MOVIE_KEY));
+        if (savedInstanceState != null && savedInstanceState.get(MOVIE_KEY) != null) {
+            movieListAdapter.addAll((List<Movie>) savedInstanceState.get(MOVIE_KEY));
         }
     }
 }
