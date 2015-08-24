@@ -24,19 +24,25 @@
             android:layout_height="wrap_content"
             android:columnCount="2"
             android:padding="5dp"
-            android:rowCount="4">
+            android:rowCount="3">
 
             <ImageView
                 android:id="@+id/img_movie_detail_poster"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_rowSpan="4"
+                android:layout_width="wrap_content"
+                android:layout_gravity="fill_horizontal"
+                android:gravity="center"
+                android:layout_columnWeight="5"
+                android:layout_rowSpan="3"
+                android:minHeight="250dp"
+                android:minWidth="200dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/no_image" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
+                android:layout_columnWeight="1"
                 android:layout_gravity="right|center"
                 android:gravity="bottom"
                 android:textStyle="bold"
@@ -46,28 +52,31 @@
             <TextView
                 android:id="@+id/txt_det_release"
                 android:layout_width="wrap_content"
+                android:layout_columnWeight="1"
                 android:layout_height="50dp"
                 android:layout_gravity="right|center"
                 android:gravity="top"
                 android:textSize="@dimen/abc_dialog_padding_top_material"  />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:gravity="bottom"
+                android:layout_height="wrap_content"
                 android:layout_gravity="right|center"
-                android:text="@string/det_rating"
-                android:textStyle="bold"
-                android:textSize="@dimen/abc_dialog_padding_top_material" />
+                android:layout_columnWeight="1"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/abc_dialog_padding_top_material"
+                    android:text="@string/det_rating"/>
 
-            <TextView
-                android:id="@+id/txt_det_rating"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:layout_gravity="center|right"
-                android:gravity="top"
-                android:textSize="@dimen/abc_dialog_padding_top_material" />
-
+                <TextView
+                    android:id="@+id/txt_det_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:textSize="@dimen/abc_dialog_padding_top_material"  />
+            </LinearLayout>
         </GridLayout>
 
         <TextView
@@ -85,7 +94,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:gravity="center|left|top"
-            android:text="New Text 2"
             android:textSize="@dimen/abc_dialog_padding_top_material" />
 
     </LinearLayout>

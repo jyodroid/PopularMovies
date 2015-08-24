@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -24,7 +26,7 @@ import java.util.List;
  * Created by JohnTangarife on 5/08/15.
  * UDACITY project
  */
-public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
+public class PopMoviesTask extends AsyncTask<String, Integer, List<Movie>>{
 
     //Error codes when retrieve data from API
     public static final int NO_API_KEY_SET = 0;
@@ -37,12 +39,20 @@ public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
     private static final String LOG_TAG = PopMoviesTask.class.getSimpleName();
     private MovieListAdapter moviesAdapter;
     private Context context;
+    private ProgressBar mProgressBar;
     private int mDataErrorCode = -1;
 
-    public PopMoviesTask(MovieListAdapter moviesAdapter, Context context) {
+    public PopMoviesTask(MovieListAdapter moviesAdapter, ProgressBar progressBar, Context context) {
 
         this.moviesAdapter = moviesAdapter;
+        this.mProgressBar = progressBar;
         this.context = context;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -63,16 +73,14 @@ public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
 
             //Param values
             String sortTypeParam = params[0]+"."+"desc";
-            String includeAdultParam = "true";
 
             //Insert here your API KEY from themoviedb.org
-            String apiKey = "";
+            String apiKey = "017dc8f40b120d8b19ae8c25a15cef20";
 
             if (apiKey.isEmpty() || apiKey.equals("")){
                 mDataErrorCode = NO_API_KEY_SET;
                 return null;
             }
-
             // Construct the URL
             Uri builtUri = Uri.parse(API_BASE_PATH).buildUpon()
                     .appendQueryParameter(SORT_BY_PARAMETER, sortTypeParam)
@@ -84,10 +92,12 @@ public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
             // Create the request and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
+
             urlConnection.connect();
 
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
+
             StringBuilder buffer = new StringBuilder();
             if (inputStream == null) {
                 // Nothing to do.
@@ -184,14 +194,14 @@ public class PopMoviesTask extends AsyncTask<String, Void, List<Movie>>{
                 moviesAdapter.addAll(result);
             }
         }
-
+        mProgressBar.setVisibility(View.GONE);
     }
 
     private List<Movie> getMoviesFromJson(String moviesJsonStr) throws JSONException, MalformedURLException {
 
         //Constants for build the poster path
         final String POSTER_BASE_PATH = "http://image.tmdb.org/t/p";
-        final String POSTER_SIZE = "w342";
+        final String POSTER_SIZE = "w185";
 
         // These are the names of the JSON objects that need to be extracted.
         final String RESULTS = "results";

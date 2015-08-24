@@ -14,10 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -26,25 +30,29 @@ public class PopularMoviesFragment extends Fragment {
 
     private MovieListAdapter movieListAdapter;
     private static final String MOVIE_KEY = "movie_key";
+    private SharedPreferences mSharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
+    @Bind(R.id.main_progress)
+    ProgressBar mProgressBar;
+    @Bind(R.id.gridview_posters)
+    GridView mGridView;
 
 
     public PopularMoviesFragment() {
     }
 
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        if (movieListAdapter.getMoviesResult().size() == 0) {
-//            updateMoviesList(getActivity().getBaseContext());
-//        }
-//    }
-//
     @Override
     public void onResume() {
         if (movieListAdapter.getMoviesResult().size() == 0) {
             updateMoviesList(getActivity().getBaseContext());
         }
+
+        if(mSharedPreferences != null &&
+                mSharedPreferences.equals(PreferenceManager
+                .getDefaultSharedPreferences(getActivity().getBaseContext()))){
+            updateMoviesList(getActivity().getBaseContext());
+        }
+
         super.onResume();
     }
 
@@ -58,7 +66,10 @@ public class PopularMoviesFragment extends Fragment {
 
                     @Override
                     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                        updateMoviesList(context);
+                        if (movieListAdapter != null){
+                            updateMoviesList(context);
+                        }
+                        mSharedPreferences = sharedPreferences;
                     }
                 };
 
@@ -66,16 +77,16 @@ public class PopularMoviesFragment extends Fragment {
                 .registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
 
         View rootView = inflater.inflate(R.layout.fragment_popular_movies, container, false);
-        GridView gridView = (GridView) rootView.findViewById(R.id.gridview_posters);
+        ButterKnife.bind(this, rootView);
 
         movieListAdapter = new MovieListAdapter(context, new ArrayList<Movie>());
-        gridView.setAdapter(movieListAdapter);
+        mGridView.setAdapter(movieListAdapter);
 
-        if (savedInstanceState != null && savedInstanceState.get(MOVIE_KEY) == null) {
+        if (savedInstanceState == null || savedInstanceState.get(MOVIE_KEY) == null) {
             updateMoviesList(context);
         }
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -95,7 +106,7 @@ public class PopularMoviesFragment extends Fragment {
 
         //Check if we have internet access
         if (isInternetAvailable()) {
-            PopMoviesTask task = new PopMoviesTask(movieListAdapter, context);
+            PopMoviesTask task = new PopMoviesTask(movieListAdapter, mProgressBar, context);
 
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(getActivity());
