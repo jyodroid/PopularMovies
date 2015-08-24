@@ -75,7 +75,7 @@ public class PopMoviesTask extends AsyncTask<String, Integer, List<Movie>>{
             String sortTypeParam = params[0]+"."+"desc";
 
             //Insert here your API KEY from themoviedb.org
-            String apiKey = "017dc8f40b120d8b19ae8c25a15cef20";
+            String apiKey = "";
 
             if (apiKey.isEmpty() || apiKey.equals("")){
                 mDataErrorCode = NO_API_KEY_SET;
