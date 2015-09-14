@@ -1,4 +1,4 @@
-package com.jyo.android.popularmovies;
+package com.jyo.android.popularmovies.moviedetails;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jyo.android.popularmovies.PopularMovies;
+import com.jyo.android.popularmovies.R;
+import com.jyo.android.popularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
@@ -18,6 +21,9 @@ import butterknife.ButterKnife;
  * A placeholder fragment containing a simple view.
  */
 public class MovieDetailActivityFragment extends Fragment {
+
+    private static final String NOT_AVAILABLE = "Not available";
+    private static final String LOG_TAG = MovieDetailActivityFragment.class.getSimpleName();
 
     public MovieDetailActivityFragment() {
     }
@@ -45,10 +51,10 @@ public class MovieDetailActivityFragment extends Fragment {
         }
 
         //Fill movie data
-        viewHolder.originalTitle.setText(movie.getTitle());
-        viewHolder.releaseDate.setText(movie.getReleaseDate());
-        viewHolder.plot.setText(movie.getPlot());
-        viewHolder.rate.setText(String.valueOf(movie.getRating()));
+        setVerifiedValue(movie.getTitle(), viewHolder.originalTitle);
+        setVerifiedValue(movie.getReleaseDate(), viewHolder.releaseDate);
+        setVerifiedValue(movie.getPlot(), viewHolder.plot);
+        setVerifiedValue(String.valueOf(movie.getRating()), viewHolder.rate);
 
         return rootView;
     }
@@ -68,7 +74,13 @@ public class MovieDetailActivityFragment extends Fragment {
         public ViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
-
     }
 
+    private void setVerifiedValue(String value, TextView textView){
+        if (value != null && !value.toString().equals("null")){
+            textView.setText(value);
+        }else {
+            textView.setText(NOT_AVAILABLE);
+        }
+    }
 }

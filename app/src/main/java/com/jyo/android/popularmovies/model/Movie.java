@@ -1,4 +1,4 @@
-package com.jyo.android.popularmovies;
+package com.jyo.android.popularmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -9,6 +9,7 @@ import android.os.Parcelable;
 public class Movie implements Parcelable {
 
     //Attributes
+    private String movieID;
     private String posterURL;
     private String title;
     private String plot;
@@ -60,6 +61,7 @@ public class Movie implements Parcelable {
     public static final Parcelable.Creator<Movie> CREATOR = new Creator<Movie>(){
         public Movie createFromParcel(Parcel parcel){
             Movie movie = new Movie();
+            movie.setMovieID(parcel.readString());
             movie.setPosterURL(parcel.readString());
             movie.setTitle(parcel.readString());
             movie.setPlot(parcel.readString());
@@ -80,10 +82,19 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(movieID);
         dest.writeString(posterURL);
         dest.writeString(title);
         dest.writeString(plot);
         dest.writeDouble(rating);
         dest.writeString(releaseDate);
+    }
+
+    public String getMovieID() {
+        return movieID;
+    }
+
+    public void setMovieID(String movieID) {
+        this.movieID = movieID;
     }
 }

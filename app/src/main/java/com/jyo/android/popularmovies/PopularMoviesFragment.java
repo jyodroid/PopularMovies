@@ -3,8 +3,6 @@ package com.jyo.android.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -16,6 +14,12 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.jyo.android.popularmovies.commons.InternetUtils;
+import com.jyo.android.popularmovies.connection.PopMoviesTask;
+import com.jyo.android.popularmovies.model.Movie;
+import com.jyo.android.popularmovies.model.MovieListAdapter;
+import com.jyo.android.popularmovies.moviedetails.MovieDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +109,7 @@ public class PopularMoviesFragment extends Fragment {
     private void updateMoviesList(Context context) {
 
         //Check if we have internet access
-        if (isInternetAvailable()) {
+        if (InternetUtils.isInternetAvailable(getActivity())) {
             PopMoviesTask task = new PopMoviesTask(movieListAdapter, mProgressBar, context);
 
             SharedPreferences preferences =
@@ -124,13 +128,6 @@ public class PopularMoviesFragment extends Fragment {
             toast.show();
         }
 
-    }
-
-    private boolean isInternetAvailable() {
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
     }
 
     @Override

@@ -29,7 +29,7 @@
                 android:value="com.jyo.android.popularmovies.PopularMovies" />
         </activity>
         <activity
-            android:name=".MovieDetailActivity"
+            android:name=".moviedetails.MovieDetailActivity"
             android:label="@string/title_activity_movie_detail"
             android:parentActivityName=".PopularMovies" >
             <meta-data

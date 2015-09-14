@@ -12,9 +12,19 @@
     <string name="pref_sort_popularity">popularity</string>
     <string name="pref_sort_rate">vote_average</string>
 
+    <!-- Detail activity tabs-->
+    <string name="tab_movie_details">Movie Details</string>
+    <string name="tab_movie_trailers">Movie Trailers</string>
+    <string name="tab_movie_reviews">Movie Reviews</string>
+
     <!-- Detail Activity-->
     <string name="det_plot">Plot Synopsis: </string>
     <string name="det_rating">User Rating: </string>
     <string name="det_release">Release Date: </string>
+    <string name="det_favorite">Mark as favorite</string>
+
+    <!--Reviews-->
+    <string name="review_content">\"%1$s\"</string>
+    <string name="review_author">-- %1$s</string>
 
 </resources>
