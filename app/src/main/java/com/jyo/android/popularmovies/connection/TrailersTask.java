@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.jyo.android.popularmovies.R;
+import com.jyo.android.popularmovies.data.TrailerDBOperator;
 import com.jyo.android.popularmovies.model.Trailer;
 import com.jyo.android.popularmovies.model.TrailerListAdapter;
 
@@ -38,20 +39,32 @@ public class TrailersTask extends AsyncTask<String, Integer, List<Trailer>>{
     public static final int EMPTY_STRING = 2;
     public static final int IO_EXCEPTION = 3;
 
-
     private static final String API_BASE_PATH = "http://api.themoviedb.org/3/movie/";
     private static final String LOG_TAG = TrailersTask.class.getSimpleName();
     private static final String VIDEOS = "videos";
+
+    private static int mToastDuration = Toast.LENGTH_SHORT;
+
 
     private TrailerListAdapter trailersAdapter;
     private Context context;
     private String apiKey;
     private ProgressBar mProgressBar;
     private int mDataErrorCode = -1;
+    private boolean onlyList = false;
+    private String mMovieId;
 
     public TrailersTask(TrailerListAdapter trailersAdapter, ProgressBar progressBar, Context context) {
 
         this.trailersAdapter = trailersAdapter;
+        this.mProgressBar = progressBar;
+        this.context = context;
+        //Insert here your API KEY from themoviedb.org
+        this.apiKey = context.getString(R.string.api_key);
+    }
+
+    public TrailersTask(ProgressBar progressBar, Context context) {
+        this.onlyList = true;
         this.mProgressBar = progressBar;
         this.context = context;
         //Insert here your API KEY from themoviedb.org
@@ -80,7 +93,7 @@ public class TrailersTask extends AsyncTask<String, Integer, List<Trailer>>{
             final String API_KEY = "api_key";
 
             //Param values
-            String movieId = params[0];
+            mMovieId = params[0];
 
             //Verify Api key is set
             if (apiKey.isEmpty() || apiKey.equals("")){
@@ -90,7 +103,7 @@ public class TrailersTask extends AsyncTask<String, Integer, List<Trailer>>{
 
             // Construct the URL
             Uri builtUri = Uri.parse(API_BASE_PATH).buildUpon()
-                    .appendPath(movieId)
+                    .appendPath(mMovieId)
                     .appendPath(VIDEOS)
                     .appendQueryParameter(API_KEY, apiKey)
                     .build();
@@ -162,8 +175,6 @@ public class TrailersTask extends AsyncTask<String, Integer, List<Trailer>>{
 
     @Override
     protected void onPostExecute(List<Trailer> result) {
-//        clean adapter
-        trailersAdapter.clear();
 
         //Obtaining trailers
         if (result == null){
@@ -186,20 +197,24 @@ public class TrailersTask extends AsyncTask<String, Integer, List<Trailer>>{
 
             CharSequence text =
                     "We got a problem retrieving trailers info";
-            int duration = Toast.LENGTH_LONG;
-            Toast toast = Toast.makeText(context, text, duration);
+            Toast toast = Toast.makeText(context, text, mToastDuration);
             toast.show();
         }else {
             if(0 == result.size()){
                 if(context != null){
                     CharSequence text = "No Trailers found";
-                    int duration = Toast.LENGTH_SHORT;
 
-                    Toast toast = Toast.makeText(context, text, duration);
+                    Toast toast = Toast.makeText(context, text, mToastDuration);
                     toast.show();
                 }
             }else{
-                trailersAdapter.addAll(result);
+                if(onlyList){
+                    TrailerDBOperator.addTrailersForFavorites(result, mMovieId, context);
+                }else {
+                    //clean adapter
+                    trailersAdapter.clear();
+                    trailersAdapter.addAll(result);
+                }
             }
         }
         mProgressBar.setVisibility(View.GONE);

@@ -15,6 +15,7 @@ public class Movie implements Parcelable {
     private String plot;
     private double rating;
     private String releaseDate;
+    private byte[] posterBA;
 
     //Getters and setters
     public String getPosterURL() {
@@ -57,6 +58,14 @@ public class Movie implements Parcelable {
         this.releaseDate = releaseDate;
     }
 
+    public byte[] getPosterBA() {
+        return posterBA;
+    }
+
+    public void setPosterBM(byte[] posterBA) {
+        this.posterBA = posterBA;
+    }
+
     //Creator for Parcelable
     public static final Parcelable.Creator<Movie> CREATOR = new Creator<Movie>(){
         public Movie createFromParcel(Parcel parcel){
@@ -67,6 +76,14 @@ public class Movie implements Parcelable {
             movie.setPlot(parcel.readString());
             movie.setRating(parcel.readDouble());
             movie.setReleaseDate(parcel.readString());
+//            int parcelInt = parcel.readInt();
+//            if (parcelInt < 0){
+//                parcelInt = 0;
+//            }
+//            byte[] posterBA = new byte[parcelInt];
+//            parcel.createByteArray();
+//            parcel.readByteArray(posterBA);
+            movie.setPosterBM(parcel.createByteArray());
             return movie;
         }
 
@@ -88,6 +105,7 @@ public class Movie implements Parcelable {
         dest.writeString(plot);
         dest.writeDouble(rating);
         dest.writeString(releaseDate);
+        dest.writeByteArray(posterBA);
     }
 
     public String getMovieID() {

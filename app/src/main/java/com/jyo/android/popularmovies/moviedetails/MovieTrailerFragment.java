@@ -2,10 +2,12 @@ package com.jyo.android.popularmovies.moviedetails;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,7 @@ import com.jyo.android.popularmovies.PopularMovies;
 import com.jyo.android.popularmovies.R;
 import com.jyo.android.popularmovies.commons.InternetUtils;
 import com.jyo.android.popularmovies.connection.TrailersTask;
+import com.jyo.android.popularmovies.data.TrailerDBOperator;
 import com.jyo.android.popularmovies.model.Movie;
 import com.jyo.android.popularmovies.model.Trailer;
 import com.jyo.android.popularmovies.model.TrailerListAdapter;
@@ -36,8 +39,11 @@ import butterknife.ButterKnife;
 public class MovieTrailerFragment extends Fragment {
 
     private static final String LOG_TAG = MovieTrailerFragment.class.getSimpleName();
+    private static int mToastDuration = Toast.LENGTH_SHORT;
+
+
     private TrailerListAdapter adapter;
-    private ProgressBar mProgresBar;
+    private ProgressBar mProgressBar;
     private String movieId;
 
     @Override
@@ -54,8 +60,14 @@ public class MovieTrailerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         //Receive the movie object
-        Intent intent = getActivity().getIntent();
-        Movie movie = intent.getParcelableExtra(PopularMovies.MOVIE);
+//        Intent intent = getActivity().getIntent();
+//        Movie movie = intent.getParcelableExtra(PopularMovies.MOVIE);
+        Bundle bundle = this.getArguments();
+        final Movie movie = bundle.getParcelable(PopularMovies.MOVIE);
+
+        if (movie == null){
+            return null;
+        }
 
         //Set the movieId
         movieId = movie.getMovieID();
@@ -68,7 +80,7 @@ public class MovieTrailerFragment extends Fragment {
         ViewHolder holder = new ViewHolder(rootView);
         holder.originalTitle.setText(movie.getTitle());
         holder.trailersList.setAdapter(adapter);
-        mProgresBar = holder.progressBar;
+        mProgressBar = holder.progressBar;
 
         //get trailers list
         updateTrailersList(getActivity().getBaseContext(), movieId);
@@ -82,7 +94,7 @@ public class MovieTrailerFragment extends Fragment {
                 Trailer trailer = adapter.getItem(position);
                 Intent videoIntent = new Intent(
                         Intent.ACTION_VIEW,
-                        Uri.parse( "vnd.youtube" + trailer.getKey()));
+                        Uri.parse("vnd.youtube" + trailer.getKey()));
 
                 //Lets see if user have youtube app installed
                 List<ResolveInfo> list =
@@ -107,7 +119,7 @@ public class MovieTrailerFragment extends Fragment {
                             .build();
                     videoIntent = new Intent(Intent.ACTION_VIEW, uri);
                     getActivity().startActivity(videoIntent);
-                }else{
+                } else {
                     //Video from site not supported in this app for now
                     CharSequence text = "Video from " + trailer.getSite() + "Not supported yet";
                     int duration = Toast.LENGTH_LONG;
@@ -136,18 +148,30 @@ public class MovieTrailerFragment extends Fragment {
 
     private void updateTrailersList(Context context, String movieId) {
 
-        //Check if we have internet access
-        if (InternetUtils.isInternetAvailable(getActivity())) {
-            TrailersTask task = new TrailersTask(adapter, mProgresBar, context);
-            task.execute(movieId);
+        //Obtain shared preferences
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        if (preferences.getString(
+                getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_popularity)
+        ).equals(getString(R.string.pref_sort_favorite))) {
+
+            //Obtain reviews from DB
+            TrailerDBOperator.obtainTrailers(adapter, mProgressBar, context, movieId);
 
         } else {
-            CharSequence text = "No internet connection available !!";
-            int duration = Toast.LENGTH_LONG;
+            //Check if we have internet access
+            if (InternetUtils.isInternetAvailable(getActivity())) {
+                TrailersTask task = new TrailersTask(adapter, mProgressBar, context);
+                task.execute(movieId);
 
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
+            } else {
+                CharSequence text = "No internet connection available !!";
+
+                Toast toast = Toast.makeText(context, text, mToastDuration);
+                toast.show();
+            }
         }
     }
-
 }

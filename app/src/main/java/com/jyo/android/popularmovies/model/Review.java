@@ -7,6 +7,15 @@ public class Review {
 
     private String author;
     private String content;
+    private String reviewId;
+
+    public String getReviewId() {
+        return reviewId;
+    }
+
+    public void setReviewId(String reviewId) {
+        this.reviewId = reviewId;
+    }
 
     public String getAuthor() {
         return author;

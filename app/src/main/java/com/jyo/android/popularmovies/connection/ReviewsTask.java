@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.jyo.android.popularmovies.R;
+import com.jyo.android.popularmovies.data.ReviewDBOperator;
 import com.jyo.android.popularmovies.model.Review;
 import com.jyo.android.popularmovies.model.ReviewListAdapter;
 
@@ -30,7 +31,7 @@ import java.util.List;
  * Created by JohnTangarife on 5/08/15.
  * UDACITY project
  */
-public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
+public class ReviewsTask extends AsyncTask<String, Integer, List<Review>> {
 
     //Error codes when retrieve data from API
     public static final int NO_API_KEY_SET = 0;
@@ -38,16 +39,19 @@ public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
     public static final int EMPTY_STRING = 2;
     public static final int IO_EXCEPTION = 3;
 
-
     private static final String API_BASE_PATH = "http://api.themoviedb.org/3/movie/";
     private static final String LOG_TAG = ReviewsTask.class.getSimpleName();
     private static final String REVIEWS = "reviews";
+
+    private static int mToastDuration = Toast.LENGTH_SHORT;
 
     private ReviewListAdapter reviewsAdapter;
     private Context context;
     private String apiKey;
     private ProgressBar mProgressBar;
+    private boolean onlyList = false;
     private int mDataErrorCode = -1;
+    private String mMovieId;
 
     public ReviewsTask(ReviewListAdapter reviewsAdapter, ProgressBar progressBar, Context context) {
 
@@ -56,6 +60,15 @@ public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
         this.context = context;
         //Insert here your API KEY from themoviedb.org
         this.apiKey = context.getString(R.string.api_key);
+    }
+
+    public ReviewsTask(ProgressBar progressBar, Context context) {
+
+        this.mProgressBar = progressBar;
+        this.context = context;
+        //Insert here your API KEY from themoviedb.org
+        this.apiKey = context.getString(R.string.api_key);
+        this.onlyList = true;
     }
 
     @Override
@@ -80,17 +93,18 @@ public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
             final String API_KEY = "api_key";
 
             //Param values
-            String movieId = params[0];
+            mMovieId = params[0];
+
 
             //Verify Api key is set
-            if (apiKey.isEmpty() || apiKey.equals("")){
+            if (apiKey.isEmpty() || apiKey.equals("")) {
                 mDataErrorCode = NO_API_KEY_SET;
                 return null;
             }
 
             // Construct the URL
             Uri builtUri = Uri.parse(API_BASE_PATH).buildUpon()
-                    .appendPath(movieId)
+                    .appendPath(mMovieId)
                     .appendPath(REVIEWS)
                     .appendQueryParameter(API_KEY, apiKey)
                     .build();
@@ -152,7 +166,7 @@ public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
-        } catch (MalformedURLException e){
+        } catch (MalformedURLException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
@@ -162,14 +176,12 @@ public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
 
     @Override
     protected void onPostExecute(List<Review> result) {
-//        clean adapter
-        reviewsAdapter.clear();
 
         //Obtaining reviews
-        if (result == null){
+        if (result == null) {
 
             //For debug propose
-            switch (mDataErrorCode){
+            switch (mDataErrorCode) {
                 case NO_API_KEY_SET:
                     Log.e(LOG_TAG, "No Api key set for themoviedb.org API");
                     break;
@@ -186,20 +198,25 @@ public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
 
             CharSequence text =
                     "We got a problem retrieving reviews info";
-            int duration = Toast.LENGTH_LONG;
-            Toast toast = Toast.makeText(context, text, duration);
+            Toast toast = Toast.makeText(context, text, mToastDuration);
             toast.show();
-        }else {
-            if(0 == result.size()){
-                if(context != null){
+        } else {
+            if (0 == result.size()) {
+                if (context != null) {
                     CharSequence text = "No Reviews found";
-                    int duration = Toast.LENGTH_SHORT;
 
-                    Toast toast = Toast.makeText(context, text, duration);
+                    Toast toast = Toast.makeText(context, text, mToastDuration);
                     toast.show();
                 }
-            }else{
-                reviewsAdapter.addAll(result);
+            } else {
+                if (onlyList){
+                    //Add review list to database
+                    ReviewDBOperator.addReviewsForFavorites(result, mMovieId, context);
+                }else {
+                    //Clean adapter
+                    reviewsAdapter.clear();
+                    reviewsAdapter.addAll(result);
+                }
             }
         }
         mProgressBar.setVisibility(View.GONE);
@@ -211,6 +228,7 @@ public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
         final String RESULTS = "results";
         final String AUTHOR = "author";
         final String CONTENT = "content";
+        final String REVIEW_ID = "id";
 
         JSONObject reviewsJson = new JSONObject(reviewsJsonStr);
         JSONArray reviewsArray = reviewsJson.getJSONArray(RESULTS);
@@ -219,7 +237,7 @@ public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
         List<Review> reviews = new ArrayList<>();
 
         //Iterate result list
-        for(int i = 0; i < reviewsArray.length(); i++) {
+        for (int i = 0; i < reviewsArray.length(); i++) {
 
             //Object from array;
             JSONObject reviewsResponse = reviewsArray.getJSONObject(i);
@@ -231,6 +249,7 @@ public class ReviewsTask extends AsyncTask<String, Integer, List<Review>>{
             //Assign values to object
             review.setAuthor(reviewsResponse.getString(AUTHOR));
             review.setContent(reviewsResponse.getString(CONTENT));
+            review.setReviewId(reviewsResponse.getString(REVIEW_ID));
 
             reviews.add(review);
         }

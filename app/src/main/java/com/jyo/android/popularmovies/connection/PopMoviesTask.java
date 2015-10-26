@@ -33,14 +33,17 @@ import java.util.List;
 public class PopMoviesTask extends AsyncTask<String, Integer, List<Movie>>{
 
     //Error codes when retrieve data from API
-    public static final int NO_API_KEY_SET = 0;
-    public static final int NO_DATA_RETRIEVED = 1;
-    public static final int EMPTY_STRING = 2;
-    public static final int IO_EXCEPTION = 3;
-
+    private static final int NO_API_KEY_SET = 0;
+    private static final int NO_DATA_RETRIEVED = 1;
+    private static final int EMPTY_STRING = 2;
+    private static final int IO_EXCEPTION = 3;
 
     private static final String API_BASE_PATH = "http://api.themoviedb.org/3/discover/movie";
+
     private static final String LOG_TAG = PopMoviesTask.class.getSimpleName();
+
+    private static int mToastDuration = Toast.LENGTH_SHORT;
+
     private MovieListAdapter moviesAdapter;
     private Context context;
     private String apiKey;
@@ -182,16 +185,14 @@ public class PopMoviesTask extends AsyncTask<String, Integer, List<Movie>>{
 
             CharSequence text =
                     "We got a problem retrieving movies info";
-            int duration = Toast.LENGTH_LONG;
-            Toast toast = Toast.makeText(context, text, duration);
+            Toast toast = Toast.makeText(context, text, mToastDuration);
             toast.show();
         }else {
             if(0 == result.size()){
                 if(context != null){
                     CharSequence text = "No Movies found";
-                    int duration = Toast.LENGTH_LONG;
 
-                    Toast toast = Toast.makeText(context, text, duration);
+                    Toast toast = Toast.makeText(context, text, mToastDuration);
                     toast.show();
                 }
             }else{

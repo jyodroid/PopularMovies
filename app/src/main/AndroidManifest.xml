@@ -36,6 +36,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.jyo.android.popularmovies.PopularMovies" />
         </activity>
+        <provider
+            android:authorities="@string/content_authority"
+            android:name=".data.PopularMoviesProvider"
+            android:exported="true"
+            android:syncable="true" />
     </application>
 
 </manifest>
