@@ -9,12 +9,27 @@
     <string name="pref_sort_key">sort_order</string>
     <string name="pref_sort_popularity_label">Most Popular</string>
     <string name="pref_sort_rate_label">Highest-Rated</string>
+    <string name="pref_sort_favorite_label">Favorites</string>
     <string name="pref_sort_popularity">popularity</string>
     <string name="pref_sort_rate">vote_average</string>
+    <string name="pref_sort_favorite">favorite</string>
+
+    <!-- Detail activity tabs-->
+    <string name="tab_movie_details">Movie Details</string>
+    <string name="tab_movie_trailers">Movie Trailers</string>
+    <string name="tab_movie_reviews">Movie Reviews</string>
 
     <!-- Detail Activity-->
     <string name="det_plot">Plot Synopsis: </string>
     <string name="det_rating">User Rating: </string>
     <string name="det_release">Release Date: </string>
+    <string name="det_favorite">Mark as favorite</string>
+
+    <!--Reviews-->
+    <string name="review_content">\"%1$s\"</string>
+    <string name="review_author">-- %1$s</string>
+
+    <!-- Content Provider-->
+    <string name="content_authority">com.jyo.android.popularmovies.app</string>
 
 </resources>
