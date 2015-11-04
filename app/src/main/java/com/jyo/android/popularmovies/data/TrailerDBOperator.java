@@ -27,8 +27,8 @@ public class TrailerDBOperator {
     public static void obtainTrailers(
             TrailerListAdapter trailerListAdapter,
             ProgressBar progressBar,
-            Context context,
-            String movieId){
+            String movieId,
+            Context context){
 
         //Start ProgressBar
         progressBar.setVisibility(View.VISIBLE);
@@ -92,6 +92,7 @@ public class TrailerDBOperator {
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
             }else {
+
                 trailerListAdapter.addAll(trailers);
             }
         }finally {

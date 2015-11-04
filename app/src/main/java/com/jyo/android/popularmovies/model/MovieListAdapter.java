@@ -28,9 +28,6 @@ public class MovieListAdapter extends ArrayAdapter<Movie> {
     private List<Movie> moviesResult;
     private Context context;
 
-    @Bind(R.id.img_movie_poster)
-    ImageView poster;
-
     public MovieListAdapter(Context context, List<Movie> movies) {
         super(context, R.layout.list_item_movies, movies);
         this.context = context;
@@ -60,21 +57,30 @@ public class MovieListAdapter extends ArrayAdapter<Movie> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View item = inflater.inflate(R.layout.list_item_movies, null);
+        LayoutInflater inflater =
+                (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        ButterKnife.bind(this, item);
+        final ViewHolder viewHolder;
         final Movie movie = getItem(position);
+
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.list_item_movies, parent, false);
+            viewHolder = new ViewHolder(convertView);
+            convertView.setTag(viewHolder);
+        }else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
 
         //Fill poster
         if (null != movie.getPosterBA()) {
             Bitmap posterBm =
                     BitmapFactory.decodeByteArray(
                             movie.getPosterBA(), 0, movie.getPosterBA().length);
-            poster.setImageBitmap(posterBm);
+            viewHolder.poster.setImageBitmap(posterBm);
         }else if (null != movie.getPosterURL() && "" != movie.getPosterURL()) {
             Picasso.with(context).load(movie.getPosterURL())
-                    .into(poster, new Callback() {
+                    .into(viewHolder.poster, new Callback() {
                         @Override
                         public void onSuccess() {
                             Log.d(LOG_TAG, "Image loaded " + movie.getPosterURL());
@@ -83,13 +89,24 @@ public class MovieListAdapter extends ArrayAdapter<Movie> {
                         @Override
                         public void onError() {
                             Log.d(LOG_TAG, "Image no loaded " + movie.getPosterURL());
-                            Picasso.with(context).load(R.drawable.no_image).into(poster);
+                            Picasso.with(context).load(R.drawable.no_image)
+                                    .into(viewHolder.poster);
                         }
                     });
         }else {
-            Picasso.with(context).load(R.drawable.no_image).into(poster);
+            Picasso.with(context).load(R.drawable.no_image).into(viewHolder.poster);
         }
 
-        return item;
+        return convertView;
     }
+
+    static class ViewHolder {
+        @Bind(R.id.img_movie_poster)
+        ImageView poster;
+
+        public ViewHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
+    }
+
 }

@@ -34,14 +34,13 @@ import butterknife.ButterKnife;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PopularMoviesFragment extends Fragment {
+public class PopularMoviesFragment extends Fragment{
 
     private MovieListAdapter movieListAdapter;
     private static final String MOVIE_KEY = "movie_key";
     private static final String MOVIES_LISTED_KEY = "movies_listed_key";
     private static int mToastDuration = Toast.LENGTH_SHORT;
     private SharedPreferences mSharedPreferences;
-    private int mListedMovies;
     private SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener;
 
     OnMovieSelectedListener onMovieSelectedListenerCallback;
@@ -62,7 +61,7 @@ public class PopularMoviesFragment extends Fragment {
         //Ensures the activity implements callback interface
         try {
             onMovieSelectedListenerCallback = (OnMovieSelectedListener) activity;
-        }catch (ClassCastException ex){
+        } catch (ClassCastException ex) {
             throw new ClassCastException(activity.toString() +
                     "Must implement call back interface OnMovieSelectedListener");
         }
@@ -71,8 +70,15 @@ public class PopularMoviesFragment extends Fragment {
     @Override
     public void onResume() {
 
+        //Obtain shared preferences
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(getActivity());
+
         if (movieListAdapter.getMoviesResult().size() == 0 ||
-                movieListAdapter.getMoviesResult().size() != mListedMovies) {
+                preferences.getString(
+                getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_popularity)
+        ).equals(getString(R.string.pref_sort_favorite))) {
             updateMoviesList(getActivity().getBaseContext());
         }
 
@@ -176,8 +182,6 @@ public class PopularMoviesFragment extends Fragment {
         outState.putParcelableArrayList(
                 MOVIE_KEY,
                 (ArrayList<? extends Parcelable>) movieListAdapter.getMoviesResult());
-        mListedMovies = movieListAdapter.getMoviesResult().size();
-        outState.putInt(MOVIES_LISTED_KEY, mListedMovies);
     }
 
     @Override
@@ -190,11 +194,9 @@ public class PopularMoviesFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         if (savedInstanceState != null && savedInstanceState.get(MOVIE_KEY) != null) {
             movieListAdapter.addAll((List<Movie>) savedInstanceState.get(MOVIE_KEY));
-        }
-        if (savedInstanceState != null && savedInstanceState.get(MOVIES_LISTED_KEY) != null) {
-            mListedMovies = savedInstanceState.getInt(MOVIES_LISTED_KEY);
         }
     }
 

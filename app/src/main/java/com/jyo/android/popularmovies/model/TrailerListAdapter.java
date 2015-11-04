@@ -52,13 +52,22 @@ public class TrailerListAdapter extends ArrayAdapter<Trailer> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View item = inflater.inflate(R.layout.list_item_trailer, null);
+        LayoutInflater inflater =
+                (LayoutInflater) context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ViewHolder viewHolder;
 
-        ViewHolder viewHolder = new ViewHolder(item);
+        if(convertView == null){
+            convertView = inflater.inflate(R.layout.list_item_trailer, parent, false);
+            viewHolder = new ViewHolder(convertView);
+            convertView.setTag(viewHolder);
+        }else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
         Trailer trailer = getItem(position);
         viewHolder.trailerTitle.setText(trailer.getName());
-        return item;
+        return convertView;
     }
 
     static class ViewHolder {

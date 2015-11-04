@@ -117,14 +117,15 @@ public class MovieDetailActivityFragment extends Fragment {
                     }
 
                     //Refresh movie list
-                    onFavoriteDeselectedListener.FavoriteDeselected(true);
+                    if (onFavoriteDeselectedListener != null){
+                        onFavoriteDeselectedListener.favoriteDeselected(true);
+                    }
                 }
             }
         });
 
         return rootView;
     }
-
     static class ViewHolder {
         @Bind(R.id.img_movie_detail_poster)
         ImageView poster;
@@ -136,12 +137,13 @@ public class MovieDetailActivityFragment extends Fragment {
         TextView plot;
         @Bind(R.id.txt_det_rating)
         TextView rate;
+
         @Bind(R.id.det_btn_favorite)
         CheckBox favoriteStar;
-
         public ViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
+
     }
 
     @Override
@@ -216,6 +218,6 @@ public class MovieDetailActivityFragment extends Fragment {
     }
 
     public interface OnFavoriteDeselectedListener {
-        public void FavoriteDeselected(boolean isDeselected);
+        void favoriteDeselected(boolean isDeselected);
     }
 }

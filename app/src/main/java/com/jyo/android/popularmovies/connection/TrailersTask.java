@@ -45,6 +45,7 @@ public class TrailersTask extends AsyncTask<String, Integer, List<Trailer>>{
 
     private static int mToastDuration = Toast.LENGTH_SHORT;
 
+    OnTrailersListUpdated onTrailersListUpdated;
 
     private TrailerListAdapter trailersAdapter;
     private Context context;
@@ -54,13 +55,18 @@ public class TrailersTask extends AsyncTask<String, Integer, List<Trailer>>{
     private boolean onlyList = false;
     private String mMovieId;
 
-    public TrailersTask(TrailerListAdapter trailersAdapter, ProgressBar progressBar, Context context) {
+    public TrailersTask(
+            TrailerListAdapter trailersAdapter,
+            ProgressBar progressBar,
+            Context context,
+            OnTrailersListUpdated onTrailersListUpdated) {
 
         this.trailersAdapter = trailersAdapter;
         this.mProgressBar = progressBar;
         this.context = context;
         //Insert here your API KEY from themoviedb.org
         this.apiKey = context.getString(R.string.api_key);
+        this.onTrailersListUpdated = onTrailersListUpdated;
     }
 
     public TrailersTask(ProgressBar progressBar, Context context) {
@@ -214,6 +220,7 @@ public class TrailersTask extends AsyncTask<String, Integer, List<Trailer>>{
                     //clean adapter
                     trailersAdapter.clear();
                     trailersAdapter.addAll(result);
+                    onTrailersListUpdated.trailersListUpdated(result.size());
                 }
             }
         }
@@ -259,5 +266,9 @@ public class TrailersTask extends AsyncTask<String, Integer, List<Trailer>>{
         }
 
         return trailers;
+    }
+
+    public interface OnTrailersListUpdated {
+        void trailersListUpdated(int trailers);
     }
 }

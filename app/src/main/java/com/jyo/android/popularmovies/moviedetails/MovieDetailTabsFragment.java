@@ -14,7 +14,7 @@ import com.jyo.android.popularmovies.PopularMovies;
 import com.jyo.android.popularmovies.R;
 import com.jyo.android.popularmovies.model.Movie;
 
-public class MovieDetailTabsFragment extends Fragment{
+public class MovieDetailTabsFragment extends Fragment {
 
     FragmentTabHost tabHost;
     Movie mMovie;
@@ -28,7 +28,7 @@ public class MovieDetailTabsFragment extends Fragment{
         Intent intent = getActivity().getIntent();
         mMovie = intent.getParcelableExtra(PopularMovies.MOVIE);
 
-        if (mMovie == null){
+        if (mMovie == null) {
             Bundle bundle = this.getArguments();
             mMovie = bundle.getParcelable(PopularMovies.MOVIE);
         }
@@ -38,23 +38,24 @@ public class MovieDetailTabsFragment extends Fragment{
         tabHost = (FragmentTabHost) rootView.findViewById(android.R.id.tabhost);
         tabHost.setup(context, getChildFragmentManager(), android.R.id.tabcontent);
 
-//        if (mMovie != null){
-//            //add tabs Fragments
-            Bundle bundle = new Bundle();
-            bundle.putParcelable(PopularMovies.MOVIE, mMovie);
+        //add tabs Fragments
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(PopularMovies.MOVIE, mMovie);
+
+        //Bring Trailers
+
+        //Bring reviews
+
 
         tabHost.addTab(tabHost.newTabSpec("movie_details")
-                            .setIndicator(getTabIndicator(context, getString(R.string.tab_movie_details))),
-                    MovieDetailActivityFragment.class, bundle);
+                        .setIndicator(getTabIndicator(context, getString(R.string.tab_movie_details))),
+                MovieDetailActivityFragment.class, bundle);
         tabHost.addTab(tabHost.newTabSpec("movie_trailers")
-                            .setIndicator(getTabIndicator(context, getString(R.string.tab_movie_trailers))),
-                    MovieTrailerFragment.class, bundle);
+                        .setIndicator(getTabIndicator(context, getString(R.string.tab_movie_trailers))),
+                MovieTrailerFragment.class, bundle);
         tabHost.addTab(tabHost.newTabSpec("movie_reviews")
-                            .setIndicator(getTabIndicator(context, getString(R.string.tab_movie_reviews))),
-                    MovieReviewFragment.class, bundle);
-//        }
-
-
+                        .setIndicator(getTabIndicator(context, getString(R.string.tab_movie_reviews))),
+                MovieReviewFragment.class, bundle);
 
         return rootView;
     }
@@ -64,9 +65,5 @@ public class MovieDetailTabsFragment extends Fragment{
         TextView tabTitle = (TextView) view.findViewById(R.id.tab_title);
         tabTitle.setText(title);
         return view;
-    }
-
-    public interface OnFavoriteDeselectedListener {
-        public void FavoriteDeselected(boolean isDeselected);
     }
 }

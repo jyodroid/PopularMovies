@@ -52,10 +52,18 @@ public class ReviewListAdapter extends ArrayAdapter<Review> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View item = inflater.inflate(R.layout.list_item_reviews, null);
+        LayoutInflater inflater =
+                (LayoutInflater) context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ViewHolder viewHolder;
+        if (convertView == null){
+            convertView = inflater.inflate(R.layout.list_item_reviews, parent, false);
+            viewHolder = new ViewHolder(convertView);
+            convertView.setTag(viewHolder);
+        }else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
 
-        ViewHolder viewHolder = new ViewHolder(item);
         Review review = getItem(position);
 
         viewHolder.reviewContent.setText(
@@ -66,7 +74,7 @@ public class ReviewListAdapter extends ArrayAdapter<Review> {
                 String.format(context.getString(R.string.review_author),
                         review.getAuthor())
         );
-        return item;
+        return convertView;
     }
 
     static class ViewHolder {

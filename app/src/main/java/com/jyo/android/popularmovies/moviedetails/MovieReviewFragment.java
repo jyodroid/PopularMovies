@@ -33,15 +33,16 @@ import butterknife.ButterKnife;
 public class MovieReviewFragment extends Fragment {
 
     private static int mToastDuration = Toast.LENGTH_SHORT;
+    private static final String REVIEWS_KEY = "reviews_key";
 
-    private ReviewListAdapter adapter;
+    private ReviewListAdapter reviewsAdapter;
     private ProgressBar mProgressBar;
     private String movieId;
 
     @Override
     public void onResume() {
 
-        if (adapter.getReviewsResult().size() == 0 && movieId != null && !movieId.isEmpty()) {
+        if (reviewsAdapter.getReviewsResult().size() == 0 && movieId != null && !movieId.isEmpty()) {
             updateReviewsList(getActivity().getBaseContext(), movieId);
         }
 
@@ -56,20 +57,16 @@ public class MovieReviewFragment extends Fragment {
         Bundle bundle = this.getArguments();
         final Movie movie = bundle.getParcelable(PopularMovies.MOVIE);
 
-        if (movie == null){
-            return null;
-        }
-
         movieId = movie.getMovieID();
 
-        adapter = new ReviewListAdapter(getActivity(), new ArrayList<Review>());
+        reviewsAdapter = new ReviewListAdapter(getActivity(), new ArrayList<Review>());
 
         //Prepare UI elements
         View rootView = inflater.inflate(R.layout.fragment_movie_review, container, false);
         ViewHolder viewHolder = new ViewHolder(rootView);
         viewHolder.originalTitle.setText(movie.getTitle());
         mProgressBar = viewHolder.progressBar;
-        viewHolder.reviewsList.setAdapter(adapter);
+        viewHolder.reviewsList.setAdapter(reviewsAdapter);
 
         //get reviews list
         updateReviewsList(getActivity().getBaseContext(), movieId);
@@ -103,12 +100,12 @@ public class MovieReviewFragment extends Fragment {
         ).equals(getString(R.string.pref_sort_favorite))) {
 
             //Obtain reviews from DB
-            ReviewDBOperator.obtainReviews(adapter, mProgressBar, context, movieId);
+            ReviewDBOperator.obtainReviews(reviewsAdapter, mProgressBar, context, movieId);
 
         } else {
             //Check if we have internet access
             if (InternetUtils.isInternetAvailable(getActivity())) {
-                ReviewsTask task = new ReviewsTask(adapter, mProgressBar, context);
+                ReviewsTask task = new ReviewsTask(reviewsAdapter, mProgressBar, context);
                 task.execute(movieId);
             } else {
                 CharSequence text = "No internet connection available !!";

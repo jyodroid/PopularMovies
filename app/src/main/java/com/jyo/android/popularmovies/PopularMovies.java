@@ -77,6 +77,7 @@ public class PopularMovies extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_popular_movies, menu);
+
         return true;
     }
 
@@ -107,8 +108,8 @@ public class PopularMovies extends AppCompatActivity
         bundle.putParcelable(MOVIE, movie);
 
         if(mTwoPane){
+
             MovieDetailTabsFragment tabsFragment = new MovieDetailTabsFragment();
-            tabsFragment = new MovieDetailTabsFragment();
             tabsFragment.setArguments(bundle);
 
             getSupportFragmentManager().beginTransaction()
@@ -142,9 +143,17 @@ public class PopularMovies extends AppCompatActivity
     }
 
     @Override
-    public void FavoriteDeselected(boolean isDeselected) {
+    public void favoriteDeselected(boolean isDeselected) {
 
-        if(isDeselected){
+        //Obtain shared preferences
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+
+        if(mTwoPane && isDeselected &&
+                preferences.getString(
+                        getString(R.string.pref_sort_key),
+                        getString(R.string.pref_sort_popularity)
+                ).equals(getString(R.string.pref_sort_favorite))){
             PopularMoviesFragment moviesFragment =
                     (PopularMoviesFragment) getSupportFragmentManager()
                             .findFragmentById(R.id.list_fragment);

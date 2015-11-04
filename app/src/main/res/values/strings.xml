@@ -32,4 +32,7 @@
     <!-- Content Provider-->
     <string name="content_authority">com.jyo.android.popularmovies.app</string>
 
+    <!-- Share detail trailer menu-->
+    <string name="share_tittle">Share trailer</string>
+
 </resources>
